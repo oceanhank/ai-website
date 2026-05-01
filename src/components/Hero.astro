@@ -1,0 +1,106 @@
+---
+interface Props {
+  heading: string;
+  subheading: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+}
+
+const {
+  heading,
+  subheading,
+  ctaLabel,
+  ctaHref,
+  imageSrc,
+  imageAlt = '',
+} = Astro.props;
+---
+
+<section class="hero bg-dots">
+  <div class="container hero__inner">
+    <div class="hero__text">
+      <h1 class="hero__heading">{heading}</h1>
+      <p class="hero__sub">{subheading}</p>
+      {ctaLabel && ctaHref && (
+        <a href={ctaHref} class="btn hero__cta">{ctaLabel}</a>
+      )}
+    </div>
+    <div class="hero__image">
+      {imageSrc ? (
+        <img src={imageSrc} alt={imageAlt} class="hero__img" />
+      ) : (
+        <div class="hero__placeholder" aria-hidden="true">
+          <span class="hero__placeholder-icon">⬜</span>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    border-bottom: 2px solid var(--color-black);
+    padding: 4rem 0;
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 60fr 40fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .hero__heading {
+    font-size: var(--font-display-size);
+    font-weight: var(--font-display-weight);
+    font-family: var(--font-heading);
+    line-height: 1;
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .hero__sub {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 36ch;
+  }
+
+  .hero__img {
+    width: 100%;
+    border: 2px solid var(--color-black);
+    box-shadow: 6px 6px 0 var(--color-black);
+  }
+
+  .hero__placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: var(--color-gray-light);
+    border: 2px solid var(--color-black);
+    box-shadow: 6px 6px 0 var(--color-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__placeholder-icon {
+    font-size: 4rem;
+    opacity: 0.2;
+  }
+
+  @media (max-width: 767px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .hero__image {
+      order: 1;
+    }
+
+    .hero__text {
+      order: 2;
+    }
+  }
+</style>

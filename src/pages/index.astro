@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import QuickLinks from '../components/QuickLinks.astro';
+import PostCard from '../components/PostCard.astro';
+import { fetchPosts, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt } from '../lib/wordpress';
+
+const { posts } = await fetchPosts(1, 10);
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const quickLinks = [
+  { label: 'Blog', href: `${base}/blog` },
+  { label: 'Projects', href: `${base}/projects` },
+  { label: 'About', href: `${base}/about` },
+  { label: 'Contact', href: `${base}/contact` },
+];
+---
+
+<BaseLayout title="Home">
+  <Hero
+    heading="Hello. I write about AI."
+    subheading="Exploring artificial intelligence, machine learning, and the tools shaping our future. Written for humans."
+    ctaLabel="Read the blog"
+    ctaHref={`${base}/blog`}
+  />
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">Quick links</h2>
+    </div>
+    <QuickLinks links={quickLinks} />
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">From the blog</h2>
+
+      {posts.length === 0 ? (
+        <p class="empty-state">No posts yet.</p>
+      ) : (
+        <div class="post-grid">
+          {posts.map((post) => (
+            <PostCard
+              title={post.title.rendered}
+              slug={post.slug}
+              excerpt={truncateExcerpt(post.excerpt.rendered, 150)}
+              date={formatDate(post.date)}
+              imageSrc={getFeaturedImageUrl(post)}
+              imageAlt={getFeaturedImageAlt(post)}
+              base={base}
+            />
+          ))}
+        </div>
+      )}
+
+      <div class="view-all">
+        <a href={`${base}/blog`} class="btn">View all posts</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section-heading {
+    font-family: var(--font-heading);
+    font-size: var(--font-h2-size);
+    font-weight: var(--font-h2-weight);
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-state {
+    font-style: italic;
+    opacity: 0.6;
+    padding: 2rem 0;
+  }
+
+  .view-all {
+    margin-top: 2.5rem;
+  }
+</style>

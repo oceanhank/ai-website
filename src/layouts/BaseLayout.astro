@@ -1,0 +1,68 @@
+---
+import NavBar from '../components/NavBar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+}
+
+const {
+  title,
+  description = 'Thoughts on AI, machine learning, and the future of technology.',
+  ogImage,
+  ogTitle,
+  ogDescription,
+} = Astro.props;
+
+const siteTitle = 'AI Notes';
+const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+const resolvedOgTitle = ogTitle ?? title ?? siteTitle;
+const resolvedOgDesc = ogDescription ?? description;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={resolvedOgTitle} />
+    <meta property="og:description" content={resolvedOgDesc} />
+    <meta property="og:type" content="website" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+  </head>
+  <body>
+    <NavBar base={base} />
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p>&copy; {new Date().getFullYear()} {siteTitle}. Built with Astro.</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-footer {
+    border-top: 2px solid var(--color-black);
+    padding: 1.5rem 0;
+    margin-top: 4rem;
+  }
+
+  .site-footer__inner {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+</style>
