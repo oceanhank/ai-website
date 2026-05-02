@@ -277,6 +277,45 @@ WordPress 發布一篇文章時，內部會多次觸發 hooks，沒有防抖動�
 
 ---
 
+## Step 7：設定正式網域（Cloudflare + GitHub Pages）
+
+當你申請好正式網域並在 Cloudflare 管理時，依以下三個步驟設定。
+
+### 7-1. GitHub 儲存庫設定
+
+前往 GitHub repo → **Settings** → **Pages** → **Custom domain**，填入網域（例如 `www.yourdomain.com`），按 Save。
+
+GitHub 會自動在 repo 根目錄建立一個 `CNAME` 檔案。
+
+### 7-2. Cloudflare DNS 設定
+
+前往 Cloudflare → 你的網域 → **DNS** → **Add record**，新增以下兩筆記錄（同時支援有 www 和不帶 www）：
+
+| Type | Name | Content |
+|------|------|---------|
+| CNAME | `www` | `your-github-username.github.io` |
+| CNAME | `@` | `your-github-username.github.io` |
+
+> **注意**：Cloudflare 的 Proxy 狀態（橘色雲朵）建議先設成 **DNS only**（灰色），確認連線正常後再視需求開啟。DNS 生效通常需要幾分鐘到幾小時。
+
+### 7-3. 更新 `astro.config.mjs`
+
+換了正式網域後，`base` 不再需要（不是子路徑），`site` 換成正式網域：
+
+```js
+export default defineConfig({
+  output: 'static',
+  site: 'https://www.yourdomain.com',
+  base: '',
+});
+```
+
+> **坑**：`base` 改為空字串後，程式碼中所有用到 `import.meta.env.BASE_URL` 的地方會自動變成 `/`，不需要手動修改其他檔案。
+
+改完後 push 到 GitHub，Actions 重新 build 一次就生效。
+
+---
+
 ## npm 常見問題
 
 ### 權限錯誤
@@ -313,3 +352,5 @@ sudo chown -R $(whoami) ~/.npm
 | 本地 `npm install` 失敗 | `.npm/_cacache` 權限問題 | `npm install --cache /tmp/npm-cache` |
 | 靜態資源 404 | `astro.config.mjs` 缺少 `base` | 設定 `base: '/repo-name'` |
 | PAT 過期後 webhook 停止 | GitHub PAT 有效期限到 | 重新產生 PAT，更新 snippet |
+| 換網域後靜態資源 404 | `astro.config.mjs` 的 `base` 未清空 | 將 `base` 改為空字串 `''` |
+| 換網域後連結路徑錯誤 | `site` 還是舊的 GitHub Pages 網址 | 將 `site` 換成正式網域 |
