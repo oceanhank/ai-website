@@ -340,6 +340,42 @@ sudo chown -R $(whoami) ~/.npm
 
 ---
 
+## 資安注意事項
+
+### set:html 與 XSS
+
+Astro 使用 `set:html` 渲染 WordPress 文章標題與內容：
+
+```astro
+<h1 set:html={post.title.rendered} />
+<article set:html={post.content.rendered} />
+```
+
+`set:html` 不會過濾 HTML，若 WordPress 後台被入侵、文章被插入 `<script>` 標籤，會造成 XSS。
+
+**實際風險評估**：靜態網站沒有使用者輸入，外部攻擊者無法注入內容，風險來源只有 WordPress 後台本身。**只要後台帳號安全，這個風險幾乎可以忽略。**
+
+**防護重點**：
+- WordPress 後台帳號務必開啟**兩步驟驗證（2FA）**
+- 定期更新 WordPress 核心、佈景主題、外掛
+- 後台管理員帳號不要用 `admin` 當帳號名稱
+
+### 敏感資訊管理
+
+| 項目 | 正確做法 |
+|------|---------|
+| `WORDPRESS_URL` | 存在 GitHub Secrets，不寫進程式碼 |
+| GitHub PAT | 存在 WordPress Code Snippets，不放進 repo |
+| `.env` 檔案 | 加入 `.gitignore`，絕對不提交到 GitHub |
+
+> **坑**：`.env` 忘記加進 `.gitignore` 就 push，WordPress 網址會公開在 GitHub 上。
+
+### URL 建構安全
+
+`wordpress.ts` 使用 `new URL()` + `searchParams.set()` 建構 API 網址，不用字串拼接，不會有 injection 風險。維護時請保持這個寫法，不要改成字串拼接。
+
+---
+
 ## 除錯備忘
 
 | 症狀 | 原因 | 解法 |
