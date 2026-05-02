@@ -67,7 +67,27 @@ export async function fetchAllPosts(): Promise<WPPost[]> {
   return [first.posts, ...remaining.map((r) => r.posts)].flat();
 }
 
+/** Returns a URL-safe slug: uses post ID if the WordPress slug contains non-ASCII characters. */
+export function getPostSlug(post: WPPost): string {
+  try {
+    const decoded = decodeURIComponent(post.slug);
+    if (/[^\x00-\x7F]/.test(decoded)) return String(post.id);
+  } catch {
+    return String(post.id);
+  }
+  return post.slug;
+}
+
 export async function fetchPostBySlug(slug: string): Promise<WPPost> {
+  // If slug is numeric, fetch by ID directly
+  if (/^\d+$/.test(slug)) {
+    const url = new URL(`${WORDPRESS_URL}/wp-json/wp/v2/posts/${slug}`);
+    url.searchParams.set('_embed', '1');
+    const response = await fetch(url.toString());
+    if (!response.ok) throw new Error(`WordPress API error: ${response.status} ${response.statusText}`);
+    return response.json();
+  }
+
   const url = new URL(`${WORDPRESS_URL}/wp-json/wp/v2/posts`);
   url.searchParams.set('slug', slug);
   url.searchParams.set('_embed', '1');

@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { fetchAllPosts, fetchPostBySlug, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt } from '../../lib/wordpress';
+import { fetchAllPosts, fetchPostBySlug, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt, getPostSlug } from '../../lib/wordpress';
 
 export async function getStaticPaths() {
   const posts = await fetchAllPosts();
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: getPostSlug(post) },
   }));
 }
 
