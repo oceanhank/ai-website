@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import QuickLinks from '../components/QuickLinks.astro';
 import PostCard from '../components/PostCard.astro';
-import { fetchPosts, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt } from '../lib/wordpress';
+import { fetchPosts, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt, getPostSlug } from '../lib/wordpress';
 
 const { posts } = await fetchPosts(1, 10);
 
@@ -43,7 +43,7 @@ const quickLinks = [
           {posts.map((post) => (
             <PostCard
               title={post.title.rendered}
-              slug={post.slug}
+              slug={getPostSlug(post)}
               excerpt={truncateExcerpt(post.excerpt.rendered, 150)}
               date={formatDate(post.date)}
               imageSrc={getFeaturedImageUrl(post)}

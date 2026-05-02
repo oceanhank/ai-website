@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import Pagination from '../../components/Pagination.astro';
-import { fetchPosts, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt } from '../../lib/wordpress';
+import { fetchPosts, getFeaturedImageUrl, getFeaturedImageAlt, formatDate, truncateExcerpt, getPostSlug } from '../../lib/wordpress';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { posts, totalPages } = await fetchPosts(1, 10);
@@ -24,7 +24,7 @@ const currentPage = 1;
           {posts.map((post) => (
             <PostCard
               title={post.title.rendered}
-              slug={post.slug}
+              slug={getPostSlug(post)}
               excerpt={truncateExcerpt(post.excerpt.rendered, 150)}
               date={formatDate(post.date)}
               imageSrc={getFeaturedImageUrl(post)}
