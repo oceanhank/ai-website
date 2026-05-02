@@ -168,6 +168,47 @@ WordPress 在發布一篇文章的過程中，內部會多次觸發儲存事件�
 
 ---
 
+## 設定正式網域（Cloudflare + GitHub Pages）
+
+當你申請好正式網域並在 Cloudflare 管理時，依以下三個步驟設定。
+
+### 1. GitHub 儲存庫設定
+
+前往 GitHub repo → **Settings** → **Pages** → **Custom domain**，填入你的網域（例如 `www.yourdomain.com`），按 Save。
+
+GitHub 會自動在 repo 根目錄建立一個 `CNAME` 檔案。
+
+### 2. Cloudflare DNS 設定
+
+前往 Cloudflare → 你的網域 → **DNS** → **Add record**，新增以下兩筆記錄：
+
+| Type | Name | Content | 說明 |
+|------|------|---------|------|
+| CNAME | `www` | `your-github-username.github.io` | 有 www 的網址 |
+| CNAME | `@` | `your-github-username.github.io` | 不帶 www 的根網域 |
+
+> **注意**：Cloudflare 的 Proxy 狀態（橘色雲朵）建議先設成 **DNS only**（灰色），等確認連線正常後再視需求開啟。
+
+DNS 生效時間通常幾分鐘到幾小時不等。
+
+### 3. 更新 `astro.config.mjs`
+
+換了正式網域後，`base` 不再需要（不是子路徑了），`site` 換成你的網域：
+
+```js
+export default defineConfig({
+  output: 'static',
+  site: 'https://www.yourdomain.com',
+  base: '',
+});
+```
+
+改完後 push 到 GitHub，Actions 重新 build 一次就生效。
+
+> **注意**：`base` 改為空字串後，所有頁面內的連結都會自動調整，不需要手動修改其他檔案。
+
+---
+
 ## 文章撰寫注意事項
 
 ### Slug 必須使用英文
